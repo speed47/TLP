@@ -25,7 +25,7 @@ check_intel_rapl_power_limits () {
     # retval: $_testcnt++, $_failcnt++
 
     local errcnt=0
-    local prof prof_seq prof_save
+    local prof
     local pl1_val pl2_val
     local pl1_init pl2_init
     local rc
@@ -48,11 +48,7 @@ check_intel_rapl_power_limits () {
     # save initial values
     pl1_init="$(read_sysf "$INTEL_RAPL_PL1")"
     pl2_init="$(read_sysf "$INTEL_RAPL_PL2")"
-    printf_msg " initial: PL1=%s PL2=%s\n" "$pl1_init" "$pl2_init"
-
-    # get current profile
-    prof_save=$(get_current_profile)
-    prof_seq="performance balanced power-saver"
+    printf_msg " initial(%s): PL1=%s PL2=%s\n" "$prof_save" "$pl1_init" "$pl2_init"
 
     for prof in $prof_seq; do
         printf_msg " %s:" "$prof"
@@ -123,7 +119,7 @@ check_intel_rapl_power_limits () {
     # restore initial profile
     ${SUDO} ${TLP} "$prof_save" > /dev/null 2>&1
 
-    printf_msg " result: PL1=%s PL2=%s\n" "$(read_sysf "$INTEL_RAPL_PL1")" "$(read_sysf "$INTEL_RAPL_PL2")"
+    printf_msg " result(%s): PL1=%s PL2=%s\n" "$prof_save" "$(read_sysf "$INTEL_RAPL_PL1")" "$(read_sysf "$INTEL_RAPL_PL2")"
 
     # print summary
     printf_msg "}}} errcnt=%s\n\n" "$errcnt"
@@ -139,7 +135,6 @@ check_intel_rapl_unconfigured () {
 
     local errcnt=0
     local pl1_before pl2_before pl1_after pl2_after
-    local prof_save
 
     printf_msg "check_intel_rapl_unconfigured {{{\n"
 
@@ -159,10 +154,9 @@ check_intel_rapl_unconfigured () {
     # get values before
     pl1_before="$(read_sysf "$INTEL_RAPL_PL1")"
     pl2_before="$(read_sysf "$INTEL_RAPL_PL2")"
-    printf_msg " before: PL1=%s PL2=%s\n" "$pl1_before" "$pl2_before"
+    printf_msg " before(%s): PL1=%s PL2=%s\n" "$prof_save" "$pl1_before" "$pl2_before"
 
-    # get current profile and apply without intel-rapl config
-    prof_save=$(get_current_profile)
+    # apply current profile without intel-rapl config
     ${SUDO} ${TLP} "$prof_save" -- TLP_AUTO_SWITCH=2 TLP_DEFAULT_MODE="" \
         INTEL_RAPL_POWER_LIMIT_PL1_ON_AC="" \
         INTEL_RAPL_POWER_LIMIT_PL2_ON_AC="" \
@@ -175,7 +169,7 @@ check_intel_rapl_unconfigured () {
     # get values after
     pl1_after="$(read_sysf "$INTEL_RAPL_PL1")"
     pl2_after="$(read_sysf "$INTEL_RAPL_PL2")"
-    printf_msg " after: PL1=%s PL2=%s\n" "$pl1_after" "$pl2_after"
+    printf_msg " after(%s): PL1=%s PL2=%s\n" "$prof_save" "$pl1_after" "$pl2_after"
 
     # values should be unchanged
     if [ "$pl1_before" = "$pl1_after" ] && [ "$pl2_before" = "$pl2_after" ]; then
@@ -231,6 +225,18 @@ _testcnt=0
 _failcnt=0
 
 report_test "$_basename"
+
+# save initial profile
+read_saved_profile
+# shellcheck disable=SC2154
+prof_save="$(pp2str "$_prof")"
+
+# iterate supported profiles, return to initial profile
+case "$prof_save" in
+    performance) prof_seq="balanced power-saver performance" ;;
+    balanced)    prof_seq="power-saver performance balanced" ;;
+    power-saver) prof_seq="performance balanced power-saver" ;;
+esac
 
 # initialize TLP
 ${SUDO} "${TLP}" start > /dev/null
