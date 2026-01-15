@@ -582,11 +582,8 @@ set_intel_rapl_power_limits () {
     # set PL1 (long-term power limit)
     if [ -n "$pl1" ]; then
         if [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]; then
-            if write_sysf "$pl1" "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"; then
-                echo_debug "pm" "set_intel_rapl_power_limits($1).pl1: $pl1; rc=$?"
-            else
-                echo_debug "pm" "set_intel_rapl_power_limits($1).pl1.write_error: $pl1; rc=$?"
-            fi
+            write_sysf "$pl1" "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"
+            echo_debug "pm" "set_intel_rapl_power_limits($1).pl1: $pl1; rc=$?"
         else
             echo_debug "pm" "set_intel_rapl_power_limits($1).pl1.not_available"
         fi
@@ -597,11 +594,8 @@ set_intel_rapl_power_limits () {
     # set PL2 (short-term burst power limit)
     if [ -n "$pl2" ]; then
         if [ -f "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw" ]; then
-            if write_sysf "$pl2" "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"; then
-                echo_debug "pm" "set_intel_rapl_power_limits($1).pl2: $pl2; rc=$?"
-            else
-                echo_debug "pm" "set_intel_rapl_power_limits($1).pl2.write_error: $pl2; rc=$?"
-            fi
+            write_sysf "$pl2" "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"
+            echo_debug "pm" "set_intel_rapl_power_limits($1).pl2: $pl2; rc=$?"
         else
             echo_debug "pm" "set_intel_rapl_power_limits($1).pl2.not_available"
         fi
