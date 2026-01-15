@@ -250,6 +250,19 @@
 #PLATFORM_PROFILE_ON_BAT=balanced
 #PLATFORM_PROFILE_ON_SAV=low-power
 
+# Define the Intel RAPL (Running Average Power Limit) power limits in watts.
+# Sets the long term (PL1) and short term burst (PL2) package power limits.
+# Note: check with tlp-stat -p that intel-rapl is available on your hardware.
+# Default: <none>
+
+#INTEL_RAPL_POWER_LIMIT_PL1_ON_AC=30
+#INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT=15
+#INTEL_RAPL_POWER_LIMIT_PL1_ON_SAV=10
+
+#INTEL_RAPL_POWER_LIMIT_PL2_ON_AC=40
+#INTEL_RAPL_POWER_LIMIT_PL2_ON_BAT=20
+#INTEL_RAPL_POWER_LIMIT_PL2_ON_SAV=12
+
 # System suspend mode:
 #   s2idle: Idle standby - a pure software, light-weight, system sleep state,
 #   deep: Suspend to RAM - the whole system is put into a low-power state,

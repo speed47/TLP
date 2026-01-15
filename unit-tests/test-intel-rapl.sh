@@ -59,8 +59,8 @@ check_intel_rapl_power_limits () {
                 pl1_val="30000000"  # 30W in microwatts
                 pl2_val="40000000"  # 40W in microwatts
                 ${SUDO} ${TLP} "$prof" -- TLP_AUTO_SWITCH=2 TLP_DEFAULT_MODE="" \
-                    INTEL_RAPL_POWER_LIMIT_PL1_ON_AC="$pl1_val" \
-                    INTEL_RAPL_POWER_LIMIT_PL2_ON_AC="$pl2_val" \
+                    INTEL_RAPL_POWER_LIMIT_PL1_ON_AC="30" \
+                    INTEL_RAPL_POWER_LIMIT_PL2_ON_AC="40" \
                     INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT="" \
                     INTEL_RAPL_POWER_LIMIT_PL2_ON_BAT="" \
                     INTEL_RAPL_POWER_LIMIT_PL1_ON_SAV="" \
@@ -71,8 +71,8 @@ check_intel_rapl_power_limits () {
                 pl1_val="20000000"  # 20W in microwatts
                 pl2_val="25000000"  # 25W in microwatts
                 ${SUDO} ${TLP} "$prof" -- TLP_AUTO_SWITCH=2 TLP_DEFAULT_MODE="" \
-                    INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT="$pl1_val" \
-                    INTEL_RAPL_POWER_LIMIT_PL2_ON_BAT="$pl2_val" \
+                    INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT="20" \
+                    INTEL_RAPL_POWER_LIMIT_PL2_ON_BAT="25" \
                     INTEL_RAPL_POWER_LIMIT_PL1_ON_AC="" \
                     INTEL_RAPL_POWER_LIMIT_PL2_ON_AC="" \
                     INTEL_RAPL_POWER_LIMIT_PL1_ON_SAV="" \
@@ -83,8 +83,8 @@ check_intel_rapl_power_limits () {
                 pl1_val="15000000"  # 15W in microwatts
                 pl2_val="18000000"  # 18W in microwatts
                 ${SUDO} ${TLP} "$prof" -- TLP_AUTO_SWITCH=2 TLP_DEFAULT_MODE="" \
-                    INTEL_RAPL_POWER_LIMIT_PL1_ON_SAV="$pl1_val" \
-                    INTEL_RAPL_POWER_LIMIT_PL2_ON_SAV="$pl2_val" \
+                    INTEL_RAPL_POWER_LIMIT_PL1_ON_SAV="15" \
+                    INTEL_RAPL_POWER_LIMIT_PL2_ON_SAV="18" \
                     INTEL_RAPL_POWER_LIMIT_PL1_ON_AC="" \
                     INTEL_RAPL_POWER_LIMIT_PL2_ON_AC="" \
                     INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT="" \

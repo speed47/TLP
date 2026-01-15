@@ -24,6 +24,8 @@ readonly FWACPID=/sys/firmware/acpi
 
 readonly INTEL_RAPL_BASE=/sys/class/powercap/intel-rapl
 readonly INTEL_RAPL_PKG0=${INTEL_RAPL_BASE}/intel-rapl:0
+readonly INTEL_RAPL_CONSTRAINT_0=${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw
+readonly INTEL_RAPL_CONSTRAINT_1=${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw
 
 # ----------------------------------------------------------------------------
 # Functions
@@ -542,7 +544,7 @@ set_platform_profile () { # set platform profile
 check_intel_rapl () {
     # detect if intel-rapl is supported and available
     # rc: 0=supported/1=not supported
-    [ -d "$INTEL_RAPL_PKG0" ] && [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]
+    [ -d "$INTEL_RAPL_PKG0" ] && [ -f "$INTEL_RAPL_CONSTRAINT_0" ] && [ -f "$INTEL_RAPL_CONSTRAINT_1" ]
 }
 
 set_intel_rapl_power_limits () {
@@ -580,10 +582,11 @@ set_intel_rapl_power_limits () {
     fi
 
     # set PL1 (long-term power limit)
+    # convert from watts to microwatts
     if [ -n "$pl1" ]; then
-        if [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]; then
-            write_sysf "$pl1" "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"
-            echo_debug "pm" "set_intel_rapl_power_limits($1).pl1: $pl1; rc=$?"
+        if [ -f "$INTEL_RAPL_CONSTRAINT_0" ]; then
+            write_sysf "$((pl1 * 1000000))" "$INTEL_RAPL_CONSTRAINT_0"
+            echo_debug "pm" "set_intel_rapl_power_limits($1).pl1: ${pl1}W; rc=$?"
         else
             echo_debug "pm" "set_intel_rapl_power_limits($1).pl1.not_available"
         fi
@@ -592,10 +595,11 @@ set_intel_rapl_power_limits () {
     fi
 
     # set PL2 (short-term burst power limit)
+    # convert from watts to microwatts
     if [ -n "$pl2" ]; then
-        if [ -f "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw" ]; then
-            write_sysf "$pl2" "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"
-            echo_debug "pm" "set_intel_rapl_power_limits($1).pl2: $pl2; rc=$?"
+        if [ -f "$INTEL_RAPL_CONSTRAINT_1" ]; then
+            write_sysf "$((pl2 * 1000000))" "$INTEL_RAPL_CONSTRAINT_1"
+            echo_debug "pm" "set_intel_rapl_power_limits($1).pl2: ${pl2}W; rc=$?"
         else
             echo_debug "pm" "set_intel_rapl_power_limits($1).pl2.not_available"
         fi

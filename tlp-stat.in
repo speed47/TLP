@@ -618,26 +618,26 @@ if [ "$show_proc" = "1" ] || [ "$show_all" = "1" ]; then
     [ -d "$TPACPID" ] && printparm "%-54s = ##%s##" "$TPACPID/dytc_lapmode"
 
     # --- intel-rapl power limits
-    if [ -d "$INTEL_RAPL_PKG0" ]; then
+    if check_intel_rapl; then
         if [ "$quiet" = "0" ] || [ "$show_all" = "1" ] ; then
             printf "\n+++ Intel RAPL Power Limits\n"
         fi
-        if [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]; then
-            pl1=$(read_sysval "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw")
+        if [ -f "$INTEL_RAPL_CONSTRAINT_0" ]; then
+            pl1=$(read_sysval "$INTEL_RAPL_CONSTRAINT_0")
             if [ -n "$pl1" ]; then
                 # Convert microwatts to watts for display
-                perl -e 'printf ("%-54s = %6.2f [W]\n", "'"${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"'", '"$pl1"' / 1000000.0);'
+                perl -e 'printf ("%-54s = %6.2f [W]\n", "'"$INTEL_RAPL_CONSTRAINT_0"'", '"$pl1"' / 1000000.0);'
             else
-                printparm "%-54s = (not available)" "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"
+                printparm "%-54s = (not available)" "$INTEL_RAPL_CONSTRAINT_0"
             fi
         fi
-        if [ -f "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw" ]; then
-            pl2=$(read_sysval "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw")
+        if [ -f "$INTEL_RAPL_CONSTRAINT_1" ]; then
+            pl2=$(read_sysval "$INTEL_RAPL_CONSTRAINT_1")
             if [ -n "$pl2" ]; then
                 # Convert microwatts to watts for display
-                perl -e 'printf ("%-54s = %6.2f [W]\n", "'"${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"'", '"$pl2"' / 1000000.0);'
+                perl -e 'printf ("%-54s = %6.2f [W]\n", "'"$INTEL_RAPL_CONSTRAINT_1"'", '"$pl2"' / 1000000.0);'
             else
-                printparm "%-54s = (not available)" "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"
+                printparm "%-54s = (not available)" "$INTEL_RAPL_CONSTRAINT_1"
             fi
         fi
     fi
