@@ -616,6 +616,31 @@ if [ "$show_proc" = "1" ] || [ "$show_all" = "1" ]; then
     printparm "%-54s = ##%s##" "$FWACPID/platform_profile"
     printparm "%-54s = ##%s##" "$FWACPID/platform_profile_choices"
     [ -d "$TPACPID" ] && printparm "%-54s = ##%s##" "$TPACPID/dytc_lapmode"
+
+    # --- intel-rapl power limits
+    if [ -d "$INTEL_RAPL_PKG0" ]; then
+        if [ "$quiet" = "0" ] || [ "$show_all" = "1" ] ; then
+            printf "\n+++ Intel RAPL Power Limits\n"
+        fi
+        if [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]; then
+            pl1=$(read_sysval "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw")
+            if [ -n "$pl1" ]; then
+                # Convert microwatts to watts for display
+                perl -e 'printf ("%-54s = %6.2f [W]\n", "'"${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"'", '"$pl1"' / 1000000.0);'
+            else
+                printparm "%-54s = (not available)" "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"
+            fi
+        fi
+        if [ -f "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw" ]; then
+            pl2=$(read_sysval "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw")
+            if [ -n "$pl2" ]; then
+                # Convert microwatts to watts for display
+                perl -e 'printf ("%-54s = %6.2f [W]\n", "'"${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"'", '"$pl2"' / 1000000.0);'
+            else
+                printparm "%-54s = (not available)" "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"
+            fi
+        fi
+    fi
     printf "\n"
 fi # show_proc
 
