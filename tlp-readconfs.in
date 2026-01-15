@@ -170,7 +170,7 @@ sub parse_configfile {
         # strip trailing spaces
         $line =~ s/\s+$//;
         # select lines with format 'PARAMETER=value' or 'PARAMETER="value"'
-        if ( $line =~ /^(?<name>[A-Z_]+[0-9]*)(?<op>(=|\+=))(?:(?<val_bare>[-0-9a-zA-Z _.:]*)|"(?<val_dquoted>[-0-9a-zA-Z _.:]*)")\s*$/ ) {
+        if ( $line =~ /^(?<name>[A-Z_0-9]+)(?<op>(=|\+=))(?:(?<val_bare>[-0-9a-zA-Z _.:]*)|"(?<val_dquoted>[-0-9a-zA-Z _.:]*)")\s*$/ ) {
             my $name = $+{name};
             if ( $do_ren ) {
                 # rename PARAMETER
@@ -242,7 +242,7 @@ sub parse_renfile {
     while ( my $line = <$rf> ) {
         chomp $line;
         # select lines with format 'OLD_PARAMETER<whitespace>NEW_PARAMETER'
-        if ( $line =~ /^(?<old_name>[A-Z_]+[0-9]*)\s+(?<new_name>[A-Z_]+[0-9]*)\s*$/ ) {
+        if ( $line =~ /^(?<old_name>[A-Z_0-9]+)\s+(?<new_name>[A-Z_0-9]+)\s*$/ ) {
             my $old_name = $+{old_name};
             my $new_name = $+{new_name};
             $rename{$old_name} = $new_name;
@@ -272,7 +272,7 @@ sub parse_dprfile {
     while ( my $line = <$df> ) {
         chomp $line;
         # select lines with format 'PARAMETER<whitespace># message'
-        if ( $line =~ /^(?<param_name>[A-Z_]+[0-9]*)\s+#\s+(?<param_msg>.*)$/ ) {
+        if ( $line =~ /^(?<param_name>[A-Z_0-9]+)\s+#\s+(?<param_msg>.*)$/ ) {
             my $param_name = $+{param_name};
             my $param_msg = $+{param_msg};
             $dprmsg{$param_name} = $param_msg;
