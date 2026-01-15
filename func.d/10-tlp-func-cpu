@@ -22,6 +22,9 @@ readonly CPU_INFO=/proc/cpuinfo
 
 readonly FWACPID=/sys/firmware/acpi
 
+readonly INTEL_RAPL_BASE=/sys/class/powercap/intel-rapl
+readonly INTEL_RAPL_PKG0=${INTEL_RAPL_BASE}/intel-rapl:0
+
 # ----------------------------------------------------------------------------
 # Functions
 
@@ -529,6 +532,81 @@ set_platform_profile () { # set platform profile
         fi
     else
         echo_debug "pm" "set_platform_profile($1).not_available"
+    fi
+
+    return 0
+}
+
+# --- Intel RAPL Power Limits
+
+check_intel_rapl () {
+    # detect if intel-rapl is supported and available
+    # rc: 0=supported/1=not supported
+    [ -d "$INTEL_RAPL_PKG0" ] && [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]
+}
+
+set_intel_rapl_power_limits () {
+    # set Intel RAPL power limits (PL1 and PL2)
+    # $1: PP_PRF, PP_BAL, PP_SAV
+    local pl1 pl2
+
+    case "$1" in
+        "$PP_PRF")
+            pl1="${INTEL_RAPL_POWER_LIMIT_PL1_ON_AC:-}"
+            pl2="${INTEL_RAPL_POWER_LIMIT_PL2_ON_AC:-}"
+            ;;
+
+        "$PP_BAL")
+            pl1="${INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT:-}"
+            pl2="${INTEL_RAPL_POWER_LIMIT_PL2_ON_BAT:-}"
+            ;;
+
+        "$PP_SAV")
+            pl1="${INTEL_RAPL_POWER_LIMIT_PL1_ON_SAV:-$INTEL_RAPL_POWER_LIMIT_PL1_ON_BAT}"
+            pl2="${INTEL_RAPL_POWER_LIMIT_PL2_ON_SAV:-$INTEL_RAPL_POWER_LIMIT_PL2_ON_BAT}"
+            ;;
+    esac
+
+    if [ -z "$pl1" ] && [ -z "$pl2" ]; then
+        # do nothing if unconfigured
+        echo_debug "pm" "set_intel_rapl_power_limits($1).not_configured"
+        return 0
+    fi
+
+    if ! check_intel_rapl; then
+        # intel-rapl not available, log and continue
+        echo_debug "pm" "set_intel_rapl_power_limits($1).not_available"
+        return 0
+    fi
+
+    # set PL1 (long-term power limit)
+    if [ -n "$pl1" ]; then
+        if [ -f "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw" ]; then
+            if write_sysf "$pl1" "${INTEL_RAPL_PKG0}/constraint_0_power_limit_uw"; then
+                echo_debug "pm" "set_intel_rapl_power_limits($1).pl1: $pl1; rc=$?"
+            else
+                echo_debug "pm" "set_intel_rapl_power_limits($1).pl1.write_error: $pl1; rc=$?"
+            fi
+        else
+            echo_debug "pm" "set_intel_rapl_power_limits($1).pl1.not_available"
+        fi
+    else
+        echo_debug "pm" "set_intel_rapl_power_limits($1).pl1.not_configured"
+    fi
+
+    # set PL2 (short-term burst power limit)
+    if [ -n "$pl2" ]; then
+        if [ -f "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw" ]; then
+            if write_sysf "$pl2" "${INTEL_RAPL_PKG0}/constraint_1_power_limit_uw"; then
+                echo_debug "pm" "set_intel_rapl_power_limits($1).pl2: $pl2; rc=$?"
+            else
+                echo_debug "pm" "set_intel_rapl_power_limits($1).pl2.write_error: $pl2; rc=$?"
+            fi
+        else
+            echo_debug "pm" "set_intel_rapl_power_limits($1).pl2.not_available"
+        fi
+    else
+        echo_debug "pm" "set_intel_rapl_power_limits($1).pl2.not_configured"
     fi
 
     return 0
